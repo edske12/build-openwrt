@@ -70,13 +70,8 @@ jobs:
           # 下载源码
           echo "======================================== 下载源码"
 
-          git clone https://github.com/edske12/lede -b master openwrt
+          git clone --depth 1 https://github.com/edske12/lede -b master openwrt
           cd openwrt || exit
-
-          # 切换到 2025-10-08 的 commit
-          git checkout b987df78897656fe46dfe01076698f5cfe843c14
-
-          echo "已切换到 LEDE commit: $(git rev-parse HEAD)"
 
           # 添加源
           echo "src-git smpackage https://github.com/edske12/small-package" >>./feeds.conf.default
