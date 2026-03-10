@@ -71,8 +71,10 @@ jobs:
           echo "======================================== 下载源码"
 
           git clone --depth 1 https://github.com/edske12/lede -b master openwrt
-          git clone https://github.com/zzsj0928/luci-app-pushbot lede/package/luci-app-pushbot
           cd openwrt || exit
+
+          # 添加 pushbot 插件
+          git clone https://github.com/zzsj0928/luci-app-pushbot package/luci-app-pushbot
 
           # 添加源
           # echo "src-git smpackage https://github.com/edske12/small-package" >>./feeds.conf.default
