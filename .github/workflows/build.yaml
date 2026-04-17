@@ -75,7 +75,7 @@ jobs:
 
           # 添加插件
           git clone https://github.com/zzsj0928/luci-app-pushbot package/luci-app-pushbot
-          git clone https://github.com/Openwrt-Passwall/openwrt-passwall package/luci-app-passwall
+          git clone https://github.com/edske12/openwrt-passwall package/luci-app-passwall
           git clone https://github.com/jerrykuku/luci-app-argon-config package/luci-app-argon-config
           git clone https://github.com/Openwrt-Passwall/openwrt-passwall-packages package/openwrt-passwall-packages
           
