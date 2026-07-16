@@ -104,6 +104,15 @@ jobs:
           echo "======================================== 二次安装依赖,确保安装完整"
           ./scripts/feeds install -a
 
+          echo "================================================== 修复 ACME 依赖冲突"
+          SED_FILE="feeds/packages/net/acme/Makefile"
+          if [ -f "$SED_FILE" ]; then
+            sed -i '/DEPENDS:=+acme/a \  PROVIDES:=acme-acmesh-dnsapi' "$SED_FILE"
+            echo "成功修复 ACME Makefile 依赖"
+          else
+            echo "未找到 ACME Makefile，跳过修改"
+          fi
+
       - name: 5. make_download
         run: |
           echo "======================================== 版本:$KERNEL_VERSION 当前下载目录"
