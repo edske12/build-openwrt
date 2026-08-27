@@ -78,6 +78,24 @@ jobs:
           git clone https://github.com/Openwrt-Passwall/openwrt-passwall package/luci-app-passwall
           git clone https://github.com/jerrykuku/luci-app-argon-config package/luci-app-argon-config
           git clone https://github.com/Openwrt-Passwall/openwrt-passwall-packages package/openwrt-passwall-packages
+
+          # ====== [新增] 1. 补齐 acme 及 acme-acmesh-dnsapi ======
+          git clone --depth 1 https://github.com/openwrt/packages.git -b master /tmp/openwrt_packages
+          rm -rf package/acme
+          cp -r /tmp/openwrt_packages/net/acme package/acme
+          rm -rf /tmp/openwrt_packages
+
+          # ====== [新增] 2. 升级 dnsmasq 到官方/ImmortalWrt 最新版 ======
+          git clone --depth 1 https://github.com/openwrt/openwrt.git -b master /tmp/openwrt_core
+          # 删除 LEDE 自带的旧版 dnsmasq
+          rm -rf package/network/services/dnsmasq
+          # 复制官方最新版的 dnsmasq
+          cp -r /tmp/openwrt_core/package/network/services/dnsmasq package/network/services/dnsmasq
+          rm -rf /tmp/openwrt_core
+
+          # ====== [可选] 替换高版本 Golang (如 24.x) ======
+          # rm -rf feeds/packages/lang/golang
+          # git clone https://github.com/sbwml/packages_lang_golang -b 24.x feeds/packages/lang/golang
           
           # 添加源
           # echo "src-git smpackage https://github.com/edske12/small-package" >>./feeds.conf.default
