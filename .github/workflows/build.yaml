@@ -124,6 +124,10 @@ jobs:
           cd openwrt || exit
           pwd
 
+          # ====== 强制启用 ACME 及其 DNS-API 组件 ======
+          echo "CONFIG_PACKAGE_acme-acmesh-dnsapi=y" >> .config
+          # ============================================
+
           # 指定内核版本
           sed -i "s/^KERNEL_PATCHVER:=.*$/KERNEL_PATCHVER:=$KERNEL_VERSION/" target/linux/x86/Makefile
           sed -i "s/^KERNEL_TESTING_PATCHVER:=.*$/KERNEL_TESTING_PATCHVER:=$KERNEL_VERSION/" target/linux/x86/Makefile
