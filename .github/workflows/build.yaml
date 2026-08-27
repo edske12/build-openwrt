@@ -66,19 +66,16 @@ jobs:
       - name: 3. 下载源码
         run: |
           sudo chmod -R 777 /mnt
-
-          # 下载源码
-          echo "======================================== 下载源码"
           git clone --depth 1 https://github.com/coolsnowwolf/lede -b master openwrt
           cd openwrt || exit
 
-          # 添加插件
+          # 添加基础插件
           git clone https://github.com/zzsj0928/luci-app-pushbot package/luci-app-pushbot
           git clone https://github.com/Openwrt-Passwall/openwrt-passwall package/luci-app-passwall
           git clone https://github.com/jerrykuku/luci-app-argon-config package/luci-app-argon-config
           git clone https://github.com/Openwrt-Passwall/openwrt-passwall-packages package/openwrt-passwall-packages
 
-          # ====== 1. 升级 dnsmasq 到官方最新版 ======
+          # ====== 1. 升级 dnsmasq ======
           git clone --depth 1 https://github.com/openwrt/openwrt.git -b master /tmp/openwrt_core
           rm -rf package/network/services/dnsmasq
           cp -r /tmp/openwrt_core/package/network/services/dnsmasq package/network/services/dnsmasq
@@ -87,12 +84,23 @@ jobs:
           # 修改ip
           sed -i 's/192.168.1.1/192.168.2.1/g' package/base-files/files/bin/config_generate
 
-          # 更新软件包 & 安装依赖
+          # 更新 feeds
           echo "======================================== 更新软件包"
           ./scripts/feeds update -a
 
-          # ====== 2. 补齐 acme / acme-acmesh-dnsapi ======
-          ./scripts/feeds install -p packages -f acme acme-acmesh-dnsapi luci-app-acme
+          # ====== 2. 替换 ACME 模块为官方 packages 最新源码 ======
+          # 清理旧版 feeds 内的 acme 相关包
+          rm -rf feeds/packages/net/acme-acmesh feeds/packages/net/acme-common
+          
+          # 克隆官方最新 packages 仓库并提取 acme 目录
+          git clone --depth 1 https://github.com/openwrt/packages.git -b master /tmp/openwrt_packages
+          cp -r /tmp/openwrt_packages/net/acme-acmesh feeds/packages/net/
+          cp -r /tmp/openwrt_packages/net/acme-common feeds/packages/net/
+          rm -rf /tmp/openwrt_packages
+          # ======================================================
+
+          # 安装并重新索引
+          ./scripts/feeds install -p packages -f acme acme-acmesh acme-acmesh-dnsapi acme-common luci-app-acme
 
           # 删除多余软件包
           rm -rf feeds/luci/applications/luci-app-passwall
@@ -123,10 +131,6 @@ jobs:
           echo "======================================== 版本:$KERNEL_VERSION 当前下载目录"
           cd openwrt || exit
           pwd
-
-          # ====== 强制启用 ACME 及其 DNS-API 组件 ======
-          echo "CONFIG_PACKAGE_acme-acmesh-dnsapi=y" >> .config
-          # ============================================
 
           # 指定内核版本
           sed -i "s/^KERNEL_PATCHVER:=.*$/KERNEL_PATCHVER:=$KERNEL_VERSION/" target/linux/x86/Makefile
