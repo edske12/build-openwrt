@@ -88,20 +88,6 @@ jobs:
           echo "======================================== 更新软件包"
           ./scripts/feeds update -a
 
-          # ====== 2. 替换 ACME 模块为官方 packages 最新源码 ======
-          # 清理旧版 feeds 内的 acme 相关包
-          rm -rf feeds/packages/net/acme-acmesh feeds/packages/net/acme-common
-          
-          # 克隆官方最新 packages 仓库并提取 acme 目录
-          git clone --depth 1 https://github.com/openwrt/packages.git -b master /tmp/openwrt_packages
-          cp -r /tmp/openwrt_packages/net/acme-acmesh feeds/packages/net/
-          cp -r /tmp/openwrt_packages/net/acme-common feeds/packages/net/
-          rm -rf /tmp/openwrt_packages
-          # ======================================================
-
-          # 安装并重新索引
-          ./scripts/feeds install -p packages -f acme acme-acmesh acme-acmesh-dnsapi acme-common luci-app-acme
-
           # 删除多余软件包
           rm -rf feeds/luci/applications/luci-app-passwall
 
