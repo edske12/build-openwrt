@@ -66,67 +66,35 @@ jobs:
       - name: 3. 下载源码
         run: |
           sudo chmod -R 777 /mnt
+
+          # 下载源码
+          echo "======================================== 下载源码"
+
           git clone --depth 1 https://github.com/coolsnowwolf/lede -b master openwrt
           cd openwrt || exit
 
-          # 添加基础插件
+          # 添加插件
           git clone https://github.com/zzsj0928/luci-app-pushbot package/luci-app-pushbot
           git clone https://github.com/Openwrt-Passwall/openwrt-passwall package/luci-app-passwall
           git clone https://github.com/jerrykuku/luci-app-argon-config package/luci-app-argon-config
           git clone https://github.com/Openwrt-Passwall/openwrt-passwall-packages package/openwrt-passwall-packages
-
+          
           # ====== 1. 升级 dnsmasq ======
           git clone --depth 1 https://github.com/openwrt/openwrt.git -b master /tmp/openwrt_core
           rm -rf package/network/services/dnsmasq
           cp -r /tmp/openwrt_core/package/network/services/dnsmasq package/network/services/dnsmasq
           rm -rf /tmp/openwrt_core
 
+          # 添加源
+          # echo "src-git smpackage https://github.com/edske12/small-package" >>./feeds.conf.default
+
           # 修改ip
           sed -i 's/192.168.1.1/192.168.2.1/g' package/base-files/files/bin/config_generate
 
-          # 更新 feeds
+          # 更新软件包 & 安装依赖,出现 warning 信息不影响编译
           echo "======================================== 更新软件包"
           ./scripts/feeds update -a
 
-          # ====== 更新新版 ACME package ======
-          echo "======================================== 更新新版 ACME"
-
-          rm -rf feeds/packages/net/acme-dnsapi
-          rm -rf feeds/packages/net/acme
-          rm -rf feeds/packages/net/acme-common
-          rm -rf feeds/packages/net/acme-acmesh
-          rm -rf feeds/packages/net/acme-acmesh-dnsapi
-
-          git clone --depth 1 --filter=blob:none --sparse \
-            https://github.com/openwrt/packages.git /tmp/openwrt-packages
-
-          cd /tmp/openwrt-packages || exit
-
-          git sparse-checkout set \
-            net/acme \
-            net/acme-common \
-            net/acme-acmesh \
-            net/acme-acmesh-dnsapi
-
-          cd /mnt/openwrt || exit
-
-          cp -a /tmp/openwrt-packages/net/acme \
-            feeds/packages/net/
-
-          cp -a /tmp/openwrt-packages/net/acme-common \
-            feeds/packages/net/
-
-          cp -a /tmp/openwrt-packages/net/acme-acmesh \
-            feeds/packages/net/
-
-          cp -a /tmp/openwrt-packages/net/acme-acmesh-dnsapi \
-            feeds/packages/net/
-
-          rm -rf /tmp/openwrt-packages
-
-          echo "======================================== 新版 ACME package:"
-          ls -ld feeds/packages/net/acme*
-          
           # 删除多余软件包
           rm -rf feeds/luci/applications/luci-app-passwall
 
@@ -149,14 +117,6 @@ jobs:
 
           # 拷贝配置文件
           cp $GITHUB_WORKSPACE/$CONFIG_FILE /mnt/openwrt/.config
-
-          # ====== 启用新版 ACME ======
-          sed -i '/^CONFIG_PACKAGE_acme-dnsapi=/d' /mnt/openwrt/.config
-          sed -i '/^CONFIG_PACKAGE_acme-acmesh=/d' /mnt/openwrt/.config
-          sed -i '/^CONFIG_PACKAGE_acme-acmesh-dnsapi=/d' /mnt/openwrt/.config
-
-          echo "CONFIG_PACKAGE_acme-acmesh=y" >> /mnt/openwrt/.config
-          echo "CONFIG_PACKAGE_acme-acmesh-dnsapi=y" >> /mnt/openwrt/.config
 
           # echo "======================================== 版本:$KERNEL_VERSION 查看.config配置文件"
           # cat /mnt/openwrt/.config
