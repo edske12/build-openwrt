@@ -111,6 +111,11 @@ jobs:
           # 拷贝配置文件
           cp $GITHUB_WORKSPACE/$CONFIG_FILE /mnt/openwrt/.config
 
+          # 确保启用 acme-acmesh-dnsapi 并替换旧命名
+          sed -i 's/CONFIG_PACKAGE_acme-dnsapi=y/CONFIG_PACKAGE_acme-acmesh-dnsapi=y/g' /mnt/openwrt/.config
+          echo "CONFIG_PACKAGE_acme-acmesh=y" >> /mnt/openwrt/.config
+          echo "CONFIG_PACKAGE_acme-acmesh-dnsapi=y" >> /mnt/openwrt/.config
+
           # echo "======================================== 版本:$KERNEL_VERSION 查看.config配置文件"
           # cat /mnt/openwrt/.config
 
