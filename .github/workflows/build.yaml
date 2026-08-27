@@ -88,6 +88,45 @@ jobs:
           echo "======================================== 更新软件包"
           ./scripts/feeds update -a
 
+          # ====== 更新新版 ACME package ======
+          echo "======================================== 更新新版 ACME"
+
+          rm -rf feeds/packages/net/acme-dnsapi
+          rm -rf feeds/packages/net/acme
+          rm -rf feeds/packages/net/acme-common
+          rm -rf feeds/packages/net/acme-acmesh
+          rm -rf feeds/packages/net/acme-acmesh-dnsapi
+
+          git clone --depth 1 --filter=blob:none --sparse \
+            https://github.com/openwrt/packages.git /tmp/openwrt-packages
+
+          cd /tmp/openwrt-packages || exit
+
+          git sparse-checkout set \
+            net/acme \
+            net/acme-common \
+            net/acme-acmesh \
+            net/acme-acmesh-dnsapi
+
+          cd /mnt/openwrt || exit
+
+          cp -a /tmp/openwrt-packages/net/acme \
+            feeds/packages/net/
+
+          cp -a /tmp/openwrt-packages/net/acme-common \
+            feeds/packages/net/
+
+          cp -a /tmp/openwrt-packages/net/acme-acmesh \
+            feeds/packages/net/
+
+          cp -a /tmp/openwrt-packages/net/acme-acmesh-dnsapi \
+            feeds/packages/net/
+
+          rm -rf /tmp/openwrt-packages
+
+          echo "======================================== 新版 ACME package:"
+          ls -ld feeds/packages/net/acme*
+          
           # 删除多余软件包
           rm -rf feeds/luci/applications/luci-app-passwall
 
@@ -111,8 +150,11 @@ jobs:
           # 拷贝配置文件
           cp $GITHUB_WORKSPACE/$CONFIG_FILE /mnt/openwrt/.config
 
-          # 确保启用 acme-acmesh-dnsapi 并替换旧命名
-          sed -i 's/CONFIG_PACKAGE_acme-dnsapi=y/CONFIG_PACKAGE_acme-acmesh-dnsapi=y/g' /mnt/openwrt/.config
+          # ====== 启用新版 ACME ======
+          sed -i '/^CONFIG_PACKAGE_acme-dnsapi=/d' /mnt/openwrt/.config
+          sed -i '/^CONFIG_PACKAGE_acme-acmesh=/d' /mnt/openwrt/.config
+          sed -i '/^CONFIG_PACKAGE_acme-acmesh-dnsapi=/d' /mnt/openwrt/.config
+
           echo "CONFIG_PACKAGE_acme-acmesh=y" >> /mnt/openwrt/.config
           echo "CONFIG_PACKAGE_acme-acmesh-dnsapi=y" >> /mnt/openwrt/.config
 
