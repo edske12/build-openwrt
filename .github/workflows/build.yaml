@@ -79,12 +79,6 @@ jobs:
           git clone https://github.com/jerrykuku/luci-app-argon-config package/luci-app-argon-config
           git clone https://github.com/Openwrt-Passwall/openwrt-passwall-packages package/openwrt-passwall-packages
           
-          # ====== 1. 升级 dnsmasq ======
-          git clone --depth 1 https://github.com/openwrt/openwrt.git -b master /tmp/openwrt_core
-          rm -rf package/network/services/dnsmasq
-          cp -r /tmp/openwrt_core/package/network/services/dnsmasq package/network/services/dnsmasq
-          rm -rf /tmp/openwrt_core
-
           # 添加源
           # echo "src-git smpackage https://github.com/edske12/small-package" >>./feeds.conf.default
 
