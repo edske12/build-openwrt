@@ -138,7 +138,8 @@ jobs:
           pwd
 
           echo "======================================== 版本:$KERNEL_VERSION 开始编译固件"
-          make -j"$(nproc)"
+          make -j$(nproc) || make -j1 V=s
+          # make -j"$(nproc)"
           # make V=s -j1
 
           echo "======================================== 版本:$KERNEL_VERSION 编译完成"
