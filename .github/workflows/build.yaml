@@ -84,6 +84,9 @@ jobs:
           echo "======================================== 更新软件包"
           ./scripts/feeds update -a
 
+          rm -rf feeds/packages/lang/golang
+          git clone https://github.com/sbwml/packages_lang_golang -b 24.x feeds/packages/lang/golang
+
       - name: 4. 安装编译依赖
         run: |
           echo "======================================== 安装依赖"
